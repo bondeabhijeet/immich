@@ -9764,6 +9764,77 @@
         "description": "This endpoint requires the `userPreference.update` permission."
       }
     },
+    "/users/me/stats/uploads": {
+      "get": {
+        "operationId": "getMyUploadStatsUploads",
+        "parameters": [
+          {
+            "name": "from",
+            "required": false,
+            "in": "query",
+            "description": "Start date (inclusive) in YYYY-MM-DD",
+            "schema": {
+              "example": "2025-01-01",
+              "type": "string"
+            }
+          },
+          {
+            "name": "granularity",
+            "required": false,
+            "in": "query",
+            "description": "Aggregation granularity",
+            "schema": {
+              "default": "daily",
+              "type": "string",
+              "enum": [
+                "daily"
+              ]
+            }
+          },
+          {
+            "name": "to",
+            "required": false,
+            "in": "query",
+            "description": "End date (exclusive) in YYYY-MM-DD",
+            "schema": {
+              "example": "2025-01-31",
+              "type": "string"
+            }
+          },
+          {
+            "name": "tz",
+            "required": false,
+            "in": "query",
+            "description": "IANA timezone (e.g. America/New_York)",
+            "schema": {
+              "example": "UTC",
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": ""
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          },
+          {
+            "cookie": []
+          },
+          {
+            "api_key": []
+          }
+        ],
+        "tags": [
+          "Users"
+        ],
+        "x-immich-permission": "user.read",
+        "description": "This endpoint requires the `user.read` permission."
+      }
+    },
     "/users/profile-image": {
       "delete": {
         "operationId": "deleteProfileImage",

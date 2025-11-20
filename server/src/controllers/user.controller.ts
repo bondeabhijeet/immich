@@ -21,6 +21,7 @@ import { LicenseKeyDto, LicenseResponseDto } from 'src/dtos/license.dto';
 import { OnboardingDto, OnboardingResponseDto } from 'src/dtos/onboarding.dto';
 import { UserPreferencesResponseDto, UserPreferencesUpdateDto } from 'src/dtos/user-preferences.dto';
 import { CreateProfileImageDto, CreateProfileImageResponseDto } from 'src/dtos/user-profile.dto';
+import { UploadsStatsQueryDto } from 'src/dtos/user-stats.dto';
 import { UserAdminResponseDto, UserResponseDto, UserUpdateMeDto } from 'src/dtos/user.dto';
 import { Permission, RouteKey } from 'src/enum';
 import { Auth, Authenticated, FileResponse } from 'src/middleware/auth.guard';
@@ -29,6 +30,8 @@ import { LoggingRepository } from 'src/repositories/logging.repository';
 import { UserService } from 'src/services/user.service';
 import { sendFile } from 'src/utils/file';
 import { UUIDParamDto } from 'src/validation';
+
+
 
 @ApiTags('Users')
 @Controller(RouteKey.User)
@@ -44,20 +47,19 @@ export class UserController {
     return this.service.search(auth);
   }
 
-  @Get('me/activity')
-  @Authenticated({ permission: Permission.UserRead })
-  async getMyUploadActivity(
-    @Auth() auth: AuthDto,
-    @Query('from') from?: string,
-    @Query('to') to?: string,
-  ) {
-    // Default: last 52 weeks (end exclusive)
-    const end = to ? new Date(to) : new Date();
-    const start = from ? new Date(from) : new Date(end);
-    if (!from) start.setUTCDate(start.getUTCDate() - 7 * 52);
+// make sure Query is in your Nest import list at the top
+// import { ..., Get, Query, ... } from '@nestjs/common';
 
-    return this.service.getMyUploadActivity(auth.user.id, start, end);
-  }
+@Get('me/stats/uploads')
+@Authenticated({ permission: Permission.UserRead })
+async getMyUploadStatsUploads(
+  @Auth() auth: AuthDto,
+  @Query() query: UploadsStatsQueryDto,
+) {
+  return this.service.getMyUploadStatsUploads(auth.user.id, query);
+}
+
+
 
   
   @Get('me')

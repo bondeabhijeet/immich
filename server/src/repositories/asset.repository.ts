@@ -167,26 +167,30 @@ export class AssetRepository {
     userId: string,
     from: Date,
     to: Date,
+    tz = 'UTC',
   ): Promise<Array<{ date: string; count: number }>> {
-    
-    const dayExpr = sql<string>`to_char(date_trunc('day', a."createdAt"), 'YYYY-MM-DD')`;
+    // Inner query: project a single "date" column once (with tz) + filter rows
+    const dayExpr =
+      sql<string>`to_char(date_trunc('day', (a."createdAt" AT TIME ZONE ${tz})), 'YYYY-MM-DD')`;
   
-    const rows = await this.db
-      .selectFrom('asset as a') // <-- table alias 'a'
-      .select([
-        dayExpr.as('date'),
-        this.db.fn.countAll<number>().as('count'),
-      ])
+    const inner = this.db
+      .selectFrom('asset as a')
+      .select([dayExpr.as('date')])
       .where('a.ownerId', '=', userId)
       .where('a.deletedAt', 'is', null)
-      .where('a.createdAt', '>=', from)   // <-- no quotes
-      .where('a.createdAt', '<', to)      // <-- no quotes
-      .groupBy(dayExpr)
-      .orderBy(dayExpr, 'asc')
+      .where('a.createdAt', '>=', from)
+      .where('a.createdAt', '<', to);
+  
+    // Outer query: group/order by the derived column
+    const rows = await this.db
+      .selectFrom(inner.as('x'))
+      .select(['date', this.db.fn.countAll<number>().as('count')])
+      .groupBy('date')
+      .orderBy('date', 'asc')
       .execute();
   
     return rows.map((r) => ({ date: r.date, count: Number(r.count) }));
-  }
+    }
 
   @GenerateSql({ params: [[DummyValue.UUID], { model: DummyValue.STRING }] })
   @Chunked()
