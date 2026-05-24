@@ -17,6 +17,8 @@ import {
   AssetMetadataResponseDto,
   AssetMetadataUpsertDto,
   AssetStatsDto,
+  AssetUploadCountQueryDto,
+  AssetUploadCountResponseDto,
   UpdateAssetDto,
   mapStats,
 } from 'src/dtos/asset.dto';
@@ -57,6 +59,11 @@ export class AssetService extends BaseService {
 
     const stats = await this.assetRepository.getStatistics(auth.user.id, dto);
     return mapStats(stats);
+  }
+
+  async getUploadCountByDay(auth: AuthDto, dto: AssetUploadCountQueryDto): Promise<AssetUploadCountResponseDto> {
+    const counts = await this.assetRepository.getUploadCountByDay(auth.user.id, dto);
+    return { from: dto.from, to: dto.to, counts };
   }
 
   async get(auth: AuthDto, id: string): Promise<AssetResponseDto | SanitizedAssetResponseDto> {

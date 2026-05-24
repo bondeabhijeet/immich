@@ -61,6 +61,10 @@ interface AssetStatsOptions {
   isTrashed?: boolean;
   visibility?: AssetVisibility;
 }
+interface AssetUploadCountOptions {
+  from: string;
+  to: string;
+}
 
 interface LivePhotoSearchOptions {
   ownerId: string;
@@ -704,6 +708,21 @@ export class AssetRepository {
       .$if(!!isTrashed, (qb) => qb.where('asset.status', '!=', AssetStatus.Deleted))
       .where('deletedAt', isTrashed ? 'is not' : 'is', null)
       .executeTakeFirstOrThrow();
+  }
+
+  getUploadCountByDay(ownerId: string, { from, to }: AssetUploadCountOptions): Promise<Array<{ date: string; count: number }>> {
+    return this.db
+      .selectFrom('asset')
+      .select(sql<string>`to_char(date_trunc('day', "fileCreatedAt" at time zone 'UTC'), 'YYYY-MM-DD')`.as('date'))
+      .select((eb) => eb.fn.countAll<number>().as('count'))
+      .where('ownerId', '=', asUuid(ownerId))
+      .where('deletedAt', 'is', null)
+      .where('visibility', '=', AssetVisibility.Timeline)
+      .where(sql`("fileCreatedAt" at time zone 'UTC')::date`, '>=', sql`${from}::date`)
+      .where(sql`("fileCreatedAt" at time zone 'UTC')::date`, '<=', sql`${to}::date`)
+      .groupBy(sql`date_trunc('day', "fileCreatedAt" at time zone 'UTC')`)
+      .orderBy(sql`date_trunc('day', "fileCreatedAt" at time zone 'UTC')`, 'asc')
+      .execute();
   }
 
   @GenerateSql({ params: [{}] })

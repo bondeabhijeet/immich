@@ -15,6 +15,8 @@ import {
   AssetMetadataUpsertDto,
   AssetStatsDto,
   AssetStatsResponseDto,
+  AssetUploadCountQueryDto,
+  AssetUploadCountResponseDto,
   UpdateAssetDto,
 } from 'src/dtos/asset.dto';
 import { AuthDto } from 'src/dtos/auth.dto';
@@ -39,6 +41,17 @@ export class AssetController {
   })
   getAssetStatistics(@Auth() auth: AuthDto, @Query() dto: AssetStatsDto): Promise<AssetStatsResponseDto> {
     return this.service.getStatistics(auth, dto);
+  }
+
+  @Get('statistics/uploads')
+  @Authenticated({ permission: Permission.AssetStatistics })
+  @Endpoint({
+    summary: 'Get per-day upload counts',
+    description: 'Retrieve upload counts grouped by day (UTC) in a given date range for the authenticated user.',
+    history: new HistoryBuilder().added('v1').beta('v1').stable('v2'),
+  })
+  getUploadCountByDay(@Auth() auth: AuthDto, @Query() dto: AssetUploadCountQueryDto): Promise<AssetUploadCountResponseDto> {
+    return this.service.getUploadCountByDay(auth, dto);
   }
 
   @Post('jobs')

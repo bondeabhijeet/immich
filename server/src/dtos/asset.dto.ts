@@ -91,6 +91,28 @@ const AssetStatsResponseSchema = z
   })
   .meta({ id: 'AssetStatsResponseDto' });
 
+const AssetUploadCountSchema = z
+  .object({
+    date: z.string().describe('Date in YYYY-MM-DD format (UTC)'),
+    count: z.int().describe('Number of uploaded assets on this date'),
+  })
+  .meta({ id: 'AssetUploadCount' });
+
+const AssetUploadCountQuerySchema = z
+  .object({
+    from: z.string().describe('Start date in YYYY-MM-DD format (UTC)'),
+    to: z.string().describe('End date in YYYY-MM-DD format (UTC)'),
+  })
+  .meta({ id: 'AssetUploadCountQueryDto' });
+
+const AssetUploadCountResponseSchema = z
+  .object({
+    from: z.string().describe('Start date in YYYY-MM-DD format (UTC)'),
+    to: z.string().describe('End date in YYYY-MM-DD format (UTC)'),
+    counts: z.array(AssetUploadCountSchema),
+  })
+  .meta({ id: 'AssetUploadCountResponseDto' });
+
 const AssetMetadataRouteParamsSchema = z
   .object({
     id: z.uuidv4().describe('Asset ID'),
@@ -183,6 +205,8 @@ export class AssetIdsDto extends createZodDto(AssetIdsSchema) {}
 export class AssetJobsDto extends createZodDto(AssetJobsSchema) {}
 export class AssetStatsDto extends createZodDto(AssetStatsSchema) {}
 export class AssetStatsResponseDto extends createZodDto(AssetStatsResponseSchema) {}
+export class AssetUploadCountQueryDto extends createZodDto(AssetUploadCountQuerySchema) {}
+export class AssetUploadCountResponseDto extends createZodDto(AssetUploadCountResponseSchema) {}
 export class AssetMetadataRouteParams extends createZodDto(AssetMetadataRouteParamsSchema) {}
 export class AssetMetadataUpsertDto extends createZodDto(AssetMetadataUpsertSchema) {}
 export class AssetMetadataBulkUpsertDto extends createZodDto(AssetMetadataBulkUpsertSchema) {}
